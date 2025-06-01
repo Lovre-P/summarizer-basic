@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .icon-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .icon {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 20%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .icon::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            right: 20%;
+            bottom: 20%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10%;
+        }
+        .icon-text {
+            font-size: 0.8em;
+            text-align: center;
+            z-index: 1;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h1>PWA Icon Generator</h1>
+        <p>This page generates placeholder icons for the Content Summarizer PWA. Right-click on each icon and "Save image as..." to download them to the icons/ directory.</p>
+        <p>Make sure to save them with the exact filenames shown below each icon.</p>
+        <button onclick="generateAllIcons()">Generate All Icons</button>
+    </div>
+
+    <div class="icon-container" id="iconContainer">
+        <!-- Icons will be generated here -->
+    </div>
+
+    <script>
+        const iconSizes = [
+            { size: 72, filename: 'icon-72.png' },
+            { size: 96, filename: 'icon-96.png' },
+            { size: 128, filename: 'icon-128.png' },
+            { size: 144, filename: 'icon-144.png' },
+            { size: 152, filename: 'icon-152.png' },
+            { size: 192, filename: 'icon-192.png' },
+            { size: 384, filename: 'icon-384.png' },
+            { size: 512, filename: 'icon-512.png' }
+        ];
+
+        function generateIcon(size, filename) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#2563eb');
+            gradient.addColorStop(1, '#1d4ed8');
+            
+            // Draw background with rounded corners
+            const radius = size * 0.2;
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fill();
+
+            // Draw document icon
+            const docWidth = size * 0.4;
+            const docHeight = size * 0.5;
+            const docX = (size - docWidth) / 2;
+            const docY = size * 0.2;
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(docX, docY, docWidth, docHeight);
+
+            // Draw document lines
+            ctx.fillStyle = 'rgba(37, 99, 235, 0.6)';
+            const lineHeight = size * 0.03;
+            const lineSpacing = size * 0.06;
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(docX + size * 0.05, docY + size * 0.08 + i * lineSpacing, docWidth * 0.7, lineHeight);
+            }
+
+            // Draw play button overlay
+            const playSize = size * 0.15;
+            const playX = docX + docWidth - playSize * 0.7;
+            const playY = docY + docHeight - playSize * 0.7;
+
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath();
+            ctx.arc(playX, playY, playSize / 2, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Draw play triangle
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            const triangleSize = playSize * 0.3;
+            ctx.moveTo(playX - triangleSize * 0.3, playY - triangleSize * 0.5);
+            ctx.lineTo(playX - triangleSize * 0.3, playY + triangleSize * 0.5);
+            ctx.lineTo(playX + triangleSize * 0.5, playY);
+            ctx.closePath();
+            ctx.fill();
+
+            return canvas.toDataURL('image/png');
+        }
+
+        function createIconElement(size, filename) {
+            const container = document.createElement('div');
+            container.style.textAlign = 'center';
+
+            const img = document.createElement('img');
+            img.src = generateIcon(size, filename);
+            img.style.width = Math.min(size, 200) + 'px';
+            img.style.height = Math.min(size, 200) + 'px';
+            img.style.border = '1px solid #ddd';
+            img.style.borderRadius = '10px';
+            img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+
+            const label = document.createElement('div');
+            label.textContent = `${size}x${size}`;
+            label.style.marginTop = '10px';
+            label.style.fontWeight = 'bold';
+
+            const filename_label = document.createElement('div');
+            filename_label.textContent = filename;
+            filename_label.style.fontSize = '0.9em';
+            filename_label.style.color = '#666';
+
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download';
+            downloadBtn.onclick = () => downloadIcon(img.src, filename);
+
+            container.appendChild(img);
+            container.appendChild(label);
+            container.appendChild(filename_label);
+            container.appendChild(downloadBtn);
+
+            return container;
+        }
+
+        function downloadIcon(dataUrl, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = dataUrl;
+            link.click();
+        }
+
+        function generateAllIcons() {
+            const container = document.getElementById('iconContainer');
+            container.innerHTML = '';
+
+            iconSizes.forEach(({ size, filename }) => {
+                const iconElement = createIconElement(size, filename);
+                container.appendChild(iconElement);
+            });
+        }
+
+        // Add roundRect polyfill for older browsers
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+
+        // Generate icons on page load
+        generateAllIcons();
+    </script>
+</body>
+</html>
